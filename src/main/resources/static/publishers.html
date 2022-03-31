@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>NPU Bookstore</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid;
+        }
+    </style>
+
+    <script>
+        var publishers = [];
+
+        $().ready(function () {
+            $.ajax({
+                url: "publishers", success: function (result) {
+                    publishers = result;
+                    $publishers = $('#publishers');
+                    publishers.forEach((p) => {
+                        let option = '<option value="' + p.publisherId + '">' + p.publisherName + '</option?';
+                        $publishers.append(option);
+                    });
+                }
+            });
+
+            $('#publishers').click((e) => {
+                let publisher = publishers.find((p) => {
+                    return p.publisherId == $('#publishers').val();
+                })
+                $('#publisherId').val(publisher.publisherId);
+                $('#publisherName').val(publisher.publisherName);
+
+                $body = $('#books > tbody');
+                $body.html('');
+                publisher.books.forEach((b) => {
+                    let row = '<tr>' +
+                        '<td>' + b.id + '</td>' +
+                        '<td>' + b.isbn + '</td>' +
+                        '<td>' + b.title + '</td>' +
+                        '<td>' + b.price + '</td>' +
+                        '<td>' + b.available + '</td>' +
+                        '</tr>';
+                    $body.append(row);
+                });
+
+            });
+
+            $('#add').click((e) => {
+                let publisher = {};
+                publisher.publisherName = $('#publisherName').val();
+
+                $.ajax({
+                    url: "/publishers",
+                    type: 'POST',
+                    data: JSON.stringify(publisher),
+                    contentType: 'application/json',
+                    success: function (data, status) {
+                        alert('message:' + data.message + ', status = ' + status);
+                        location.reload();
+                    }
+                });
+            });
+
+            $('#update').click((e) => {
+                publisher = {};
+                publisher.publisherId = $('#publisherId').val();
+                publisher.publisherName = $('#publisherName').val();
+
+                $.ajax({
+                    url: "/publishers",
+                    type: 'PUT',
+                    data: JSON.stringify(publisher),
+                    contentType: 'application/json',
+                    success: function (data, status) {
+                        alert('message:' + data.message + ', status = ' + status);
+                        location.reload();
+                    }
+                });
+            });
+
+            
+            $('#new').click((e) => {
+                $('#publisherName').val('');
+                $body = $('#books > tbody');
+                $body.html('');
+            });
+        });
+
+    </script>
+</head>
+
+<body>
+    <h1>Publisher Page</h1>
+    <div style="width: 30%; float: left;">
+        <label for="publishers">Publisher List</label><br>
+        <select name="publishers" id="publishers" size="10" style="width: 80%">
+        </select>
+    </div>
+    <div>
+        <input type="text" hidden id="publisherId" /><br>
+        <label for="publisherName">Publisher Name: </label>
+        <input type="text" id="publisherName" /><br>
+
+        <table id="books">
+            <thead>
+                <th>id</th>
+                <th>ISBN</th>
+                <th>Title</th>
+                <th>Price</th>
+                <th>Available</th>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+
+    </div>
+    <br><br>
+    <input type="button" id="new" value="New" />
+    <input type="button" id="add" value="Add" />
+    <input type="button" id="update" value="Update" />
+    <br><br>
+    <hr style="clear: both;">
+    <h6 id="result"></h6>
+</body>
+
+</html>

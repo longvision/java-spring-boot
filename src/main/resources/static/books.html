@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>NPU Bookstore</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script>
+        var books = [];
+        var publishers = [];
+
+        $().ready(function () {
+            $.ajax({
+                url: "books", success: function (result) {
+                    books = result;
+                    $books = $('#books');
+                    books.forEach((b) => {
+                        let option = '<option value="' + b.id + '">' + b.title + '</option?';
+                        $books.append(option);
+                    });
+                }
+            });
+
+            $.ajax({
+                url: "publishers/names", success: function (result) {
+                    publishers = result;
+                    $publisher = $('#publisher');
+                    publishers.forEach((p) => {
+                        let option = '<option value="' + p.publisherId + '">' + p.publisherName + '</option?';
+                        $publisher.append(option);
+                    });
+                }
+            });
+
+            $('#books').click((e) => {
+                let book = books.find((b) => {
+                    return b.id == $('#books').val();
+                })
+                $('#id').val(book.id);
+                $('#isbn').val(book.isbn);
+                $('#title').val(book.title);
+                $('#price').val(book.price);
+                $('#available').attr("checked", books.available);
+                $('#publisher').val(book.publisherId);
+            });
+
+            $('#add').click((e) => {
+                let book = {};
+                book.isbn = $('#isbn').val();
+                book.title = $('#title').val();
+                book.price = $('#price').val();
+                book.available = $('#available').is(':checked');
+                book.publisherId = $('#publisher').val();
+
+                $.ajax({
+                    url: "/books",
+                    type: 'POST',
+                    data: JSON.stringify(book),
+                    contentType: 'application/json',
+                    success: function (data, status) {
+                        alert('message:' + data.message + ', status = ' + status);
+                        location.reload();
+                    }
+                });
+            });
+
+            $('#update').click((e) => {
+                let book = {};
+                book.id = $('#id').val();
+                book.isbn = $('#isbn').val();
+                book.title = $('#title').val();
+                book.price = $('#price').val();
+                book.available = $('#available').is(':checked');
+                book.publisherId = $('#publisher').val();
+
+                $.ajax({
+                    url: "/books",
+                    type: 'PUT',
+                    data: JSON.stringify(book),
+                    contentType: 'application/json',
+                    success: function (data, status) {
+                        alert('message:' + data.message + ', status = ' + status);
+                        location.reload();
+                    }
+                });
+            });
+
+            $('#delete').click((e) => {
+                let book = {};
+                book.id = $('#id').val();
+
+                $.ajax({
+                    url: "/books/" + book.id,
+                    type: 'DELETE',
+                    data: "{}",
+                    contentType: 'application/json',
+                    success: function (data, status) {
+                        alert('message:' + data.message + ', status = ' + status);
+                        location.reload();
+                    }
+                });
+            });
+
+        });
+
+    </script>
+</head>
+
+<body>
+    <h1>Book Page</h1>
+    <div style="width: 30%; float: left;">
+        <label for="books">Book List</label><br>
+        <select name="books" id="books" size="10" style="width: 80%">
+        </select>
+    </div>
+    <div>
+        <input type="text" hidden id="id" /><br>
+        <label for="isbn">ISBN: </label>
+        <input type="text" id="isbn" /><br>
+        <label for="title">Title: </label>
+        <input type="text" id="title" /><br>
+        <label for="price">Price: </label>
+        <input type="number" id="price" /><br>
+        <label for="available">available: </label>
+        <input id="available" type="checkbox" /><br>    
+        <label for="publisher">Publisher</label><br>
+        <select id="publisher" style="width: 30%">
+        </select><br>
+
+    </div>
+    <br><br>
+    <input type="button" id="add" value="Add" />
+    <input type="button" id="update" value="Update" />
+    <input type="button" id="delete" value="Delete" />
+    <br><br>
+    <hr style="clear: both;">
+    <h6 id="result"></h6>
+</body>
+
+</html>

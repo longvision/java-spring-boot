@@ -1,0 +1,8 @@
+DROP DATABASE IF EXISTS mydb3;
+CREATE DATABASE mydb3;
+USE mydb3;
+
+GRANT SELECT, INSERT, DELETE, UPDATE
+ON mydb3.*
+TO admin@localhost
+IDENTIFIED BY 'pass@word';
